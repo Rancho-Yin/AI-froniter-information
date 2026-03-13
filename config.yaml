@@ -3,8 +3,6 @@ schedule:
   timezone: "Asia/Shanghai"
 
 email:
-  smtp_server: "smtp.gmail.com"
-  smtp_port: 587
   subject_prefix: "🤖 AI 前沿日报"
 
 sources:
