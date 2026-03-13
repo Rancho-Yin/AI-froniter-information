@@ -61,18 +61,25 @@ def send_digest(
     msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     try:
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(sender, password)
-            server.sendmail(sender, recipients, msg.as_string())
+        # Port 465 uses implicit SSL (SMTP_SSL); port 587 uses STARTTLS
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+                server.ehlo()
+                server.login(sender, password)
+                server.sendmail(sender, recipients, msg.as_string())
+        else:
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(sender, password)
+                server.sendmail(sender, recipients, msg.as_string())
         logger.info("Digest sent to: %s", ", ".join(recipients))
         return True
     except smtplib.SMTPAuthenticationError:
         logger.error(
             "SMTP authentication failed. "
-            "For Gmail, use an App Password (not your account password)."
+            "Use the SMTP authorization code (not your login password)."
         )
         return False
     except Exception as exc:
