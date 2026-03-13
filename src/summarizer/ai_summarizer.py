@@ -1,7 +1,7 @@
 """
-AI Summarizer – uses the Claude API to generate:
+AI Summarizer – uses the Zhipu AI API (GLM models) to generate:
 
-  1. An overall AI development summary paragraph (Chinese + English).
+  1. An overall AI development summary paragraph (Chinese).
   2. Per-section highlights when needed.
 """
 
@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Optional
 
-import anthropic
+from zhipuai import ZhipuAI
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +47,12 @@ def _build_digest_context(
 def generate_overall_summary(
     papers: list[dict],
     feeds: dict[str, list[dict]],
-    model: str = "claude-opus-4-6",
+    model: str = "glm-4-flash",
     max_tokens: int = 2000,
     api_key: Optional[str] = None,
 ) -> str:
     """
-    Call Claude to produce a 300-500 word overall AI development summary
+    Call Zhipu AI to produce a 300-500 word overall AI development summary
     in Chinese, covering today's most important trends across research,
     industry, and hardware.
     """
@@ -74,35 +74,37 @@ def generate_overall_summary(
 4. 语言精炼、客观，避免夸大。
 5. 直接输出正文，不需要标题。"""
 
-    resolved_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    resolved_key = api_key or os.environ.get("ZHIPU_API_KEY")
     if not resolved_key:
-        logger.warning("ANTHROPIC_API_KEY not set; returning placeholder summary")
-        return "（Claude API 密钥未配置，总览摘要暂不可用。请设置 ANTHROPIC_API_KEY 环境变量。）"
+        logger.warning("ZHIPU_API_KEY not set; returning placeholder summary")
+        return "（Zhipu API 密钥未配置，总览摘要暂不可用。请设置 ZHIPU_API_KEY 环境变量。）"
 
     try:
-        client = anthropic.Anthropic(api_key=resolved_key)
-        message = client.messages.create(
+        client = ZhipuAI(api_key=resolved_key)
+        response = client.chat.completions.create(
             model=model,
             max_tokens=max_tokens,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
         )
-        summary = message.content[0].text.strip()
+        summary = response.choices[0].message.content.strip()
         logger.info("Overall summary generated (%d chars)", len(summary))
         return summary
-    except anthropic.APIError as exc:
-        logger.error("Claude API error: %s", exc)
+    except Exception as exc:
+        logger.error("Zhipu AI API error: %s", exc)
         return f"（AI 总览生成失败：{exc}）"
 
 
 def generate_paper_highlights(
     papers: list[dict],
-    model: str = "claude-opus-4-6",
+    model: str = "glm-4-flash",
     max_tokens: int = 1000,
     api_key: Optional[str] = None,
 ) -> str:
     """
-    Ask Claude to pick the top 3 most impactful papers and explain why
+    Ask Zhipu AI to pick the top 3 most impactful papers and explain why
     in 1-2 sentences each (Chinese).
     """
     if not papers:
@@ -113,13 +115,13 @@ def generate_paper_highlights(
         for i, p in enumerate(papers[:12])
     )
 
-    resolved_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    resolved_key = api_key or os.environ.get("ZHIPU_API_KEY")
     if not resolved_key:
         return ""
 
     try:
-        client = anthropic.Anthropic(api_key=resolved_key)
-        message = client.messages.create(
+        client = ZhipuAI(api_key=resolved_key)
+        response = client.chat.completions.create(
             model=model,
             max_tokens=max_tokens,
             messages=[
@@ -133,7 +135,7 @@ def generate_paper_highlights(
                 }
             ],
         )
-        return message.content[0].text.strip()
+        return response.choices[0].message.content.strip()
     except Exception as exc:
         logger.error("Paper highlights generation failed: %s", exc)
         return ""
