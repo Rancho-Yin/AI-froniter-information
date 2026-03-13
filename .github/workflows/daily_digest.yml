@@ -1,0 +1,73 @@
+name: AI Frontier Daily Digest
+
+on:
+  # 每天北京时间 07:00 = UTC 23:00 (前一天)
+  schedule:
+    - cron: "0 23 * * *"
+
+  # 允许手动触发（测试用）
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "Run in test mode (renders HTML only, no email sent)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  send-digest:
+    name: Collect & Send AI Digest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ------------------------------------------------------------------ #
+      # 1. Checkout repository
+      # ------------------------------------------------------------------ #
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------------ #
+      # 2. Set up Python
+      # ------------------------------------------------------------------ #
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # ------------------------------------------------------------------ #
+      # 3. Install dependencies
+      # ------------------------------------------------------------------ #
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ------------------------------------------------------------------ #
+      # 4. Run digest (or test mode)
+      # ------------------------------------------------------------------ #
+      - name: Run AI digest (one-shot)
+        if: ${{ github.event.inputs.test_mode != 'true' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EMAIL_SENDER:      ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD:    ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECIPIENT:   ${{ secrets.EMAIL_RECIPIENT }}
+        run: python main.py
+
+      - name: Run test render (no email sent)
+        if: ${{ github.event.inputs.test_mode == 'true' }}
+        run: python main.py --test
+
+      # ------------------------------------------------------------------ #
+      # 5. Upload test HTML as artifact (only in test mode)
+      # ------------------------------------------------------------------ #
+      - name: Upload test HTML artifact
+        if: ${{ github.event.inputs.test_mode == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-email-preview
+          path: test_output.html
+          retention-days: 3
