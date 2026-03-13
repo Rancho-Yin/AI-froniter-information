@@ -1,0 +1,88 @@
+schedule:
+  time: "07:00"
+  timezone: "Asia/Shanghai"
+
+email:
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  subject_prefix: "🤖 AI 前沿日报"
+
+sources:
+  arxiv:
+    categories:
+      - cs.AI
+      - cs.LG
+      - cs.CL
+      - cs.CV
+      - cs.RO
+    max_results: 15
+
+  rss_feeds:
+    papers:
+      - name: "Hugging Face Papers"
+        url: "https://huggingface.co/papers/rss"
+        category: "papers"
+      - name: "Papers With Code"
+        url: "https://paperswithcode.com/latest.rss"
+        category: "papers"
+
+    english_news:
+      - name: "Import AI (Jack Clark)"
+        url: "https://importai.substack.com/feed"
+        category: "intl_news"
+      - name: "The Rundown AI"
+        url: "https://www.therundown.ai/feed"
+        category: "intl_news"
+      - name: "AI Snake Oil (Princeton)"
+        url: "https://www.aisnakeoil.com/feed"
+        category: "intl_news"
+      - name: "NVIDIA AI Blog"
+        url: "https://blogs.nvidia.com/feed/"
+        category: "hardware"
+      - name: "Google DeepMind Blog"
+        url: "https://deepmind.google/blog/rss.xml"
+        category: "intl_news"
+      - name: "OpenAI Blog"
+        url: "https://openai.com/blog/rss.xml"
+        category: "intl_news"
+      - name: "Anthropic News"
+        url: "https://www.anthropic.com/news/rss.xml"
+        category: "intl_news"
+      - name: "Meta AI Blog"
+        url: "https://ai.meta.com/blog/rss"
+        category: "intl_news"
+
+    chinese_news:
+      - name: "量子位"
+        url: "https://www.qbitai.com/feed"
+        category: "cn_news"
+      - name: "机器之心"
+        url: "https://www.jiqizhixin.com/rss"
+        category: "cn_news"
+      - name: "新智元"
+        url: "https://xinzhiyuan.com/feed"
+        category: "cn_news"
+      - name: "AI科技评论"
+        url: "https://www.aitechtalk.cn/feed"
+        category: "cn_news"
+
+    hardware:
+      - name: "SemiAnalysis"
+        url: "https://www.semianalysis.com/feed"
+        category: "hardware"
+      - name: "半导体行业观察"
+        url: "https://www.iczhiku.com/rss.xml"
+        category: "hardware"
+      - name: "Tom's Hardware AI"
+        url: "https://www.tomshardware.com/feeds/all"
+        category: "hardware"
+
+claude:
+  model: "claude-opus-4-6"
+  max_tokens: 4096
+  summary_max_tokens: 2000
+
+display:
+  max_papers: 10
+  max_news_per_source: 5
+  max_hardware_items: 8
