@@ -90,20 +90,20 @@ def run_digest(cfg: dict) -> bool:
     )
 
     # 3. Generate AI summaries
-    logger.info("Step 3/4 – Generating AI summaries via Claude …")
-    claude_cfg = cfg["claude"]
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    logger.info("Step 3/4 – Generating AI summaries via Zhipu AI …")
+    zhipu_cfg = cfg["zhipu"]
+    api_key = os.environ.get("ZHIPU_API_KEY")
 
     overall_summary = generate_overall_summary(
         papers=papers,
         feeds=feeds,
-        model=claude_cfg["model"],
-        max_tokens=claude_cfg["summary_max_tokens"],
+        model=zhipu_cfg["model"],
+        max_tokens=zhipu_cfg["summary_max_tokens"],
         api_key=api_key,
     )
     paper_highlights = generate_paper_highlights(
         papers=papers,
-        model=claude_cfg["model"],
+        model=zhipu_cfg["model"],
         max_tokens=1000,
         api_key=api_key,
     )
@@ -124,8 +124,6 @@ def run_digest(cfg: dict) -> bool:
     success = send_digest(
         subject=subject,
         html_body=html,
-        smtp_server=email_cfg["smtp_server"],
-        smtp_port=email_cfg["smtp_port"],
     )
 
     if success:

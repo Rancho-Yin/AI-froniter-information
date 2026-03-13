@@ -3,8 +3,6 @@ schedule:
   timezone: "Asia/Shanghai"
 
 email:
-  smtp_server: "smtp.163.com"
-  smtp_port: 465
   subject_prefix: "🤖 AI 前沿日报"
 
 sources:
@@ -77,8 +75,8 @@ sources:
         url: "https://www.tomshardware.com/feeds/all"
         category: "hardware"
 
-claude:
-  model: "claude-opus-4-6"
+zhipu:
+  model: "glm-4-flash"
   max_tokens: 4096
   summary_max_tokens: 2000
 

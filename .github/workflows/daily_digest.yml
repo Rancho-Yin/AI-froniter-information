@@ -51,10 +51,10 @@ jobs:
       - name: Run AI digest (one-shot)
         if: ${{ github.event.inputs.test_mode != 'true' }}
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          EMAIL_SENDER:      ${{ secrets.EMAIL_SENDER }}
-          EMAIL_PASSWORD:    ${{ secrets.EMAIL_PASSWORD }}
-          EMAIL_RECIPIENT:   ${{ secrets.EMAIL_RECIPIENT }}
+          ZHIPU_API_KEY:    ${{ secrets.ZHIPU_API_KEY }}
+          RESEND_API_KEY:   ${{ secrets.RESEND_API_KEY }}
+          EMAIL_SENDER:     ${{ secrets.EMAIL_SENDER }}
+          EMAIL_RECIPIENT:  ${{ secrets.EMAIL_RECIPIENT }}
         run: python main.py
 
       - name: Run test render (no email sent)
