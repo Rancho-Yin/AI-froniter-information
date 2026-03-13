@@ -29,6 +29,9 @@ HEADERS = {
 
 TIMEOUT = 15  # seconds per request
 
+# Domains with known expired/invalid SSL certificates – skip verification for these
+SSL_SKIP_VERIFY_HOSTS = {"www.iczhiku.com"}
+
 
 def _parse_published(entry: feedparser.FeedParserDict) -> Optional[datetime]:
     """Try to extract a timezone-aware published datetime from an entry."""
@@ -58,7 +61,13 @@ def _fetch_feed(feed_cfg: dict, cutoff: datetime) -> list[dict]:
     items: list[dict] = []
 
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+        from urllib.parse import urlparse
+        host = urlparse(url).hostname or ""
+        verify_ssl = host not in SSL_SKIP_VERIFY_HOSTS
+        if not verify_ssl:
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT, verify=verify_ssl)
         resp.raise_for_status()
         feed = feedparser.parse(resp.text)
     except Exception as exc:
