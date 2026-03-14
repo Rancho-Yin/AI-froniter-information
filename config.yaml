@@ -4,7 +4,7 @@ schedule:
 
 email:
   subject_prefix: "🤖 AI 前沿日报"
-  smtp_server: "smtpdm.volcengine.com"
+  smtp_server: "smtp.163.com"
   smtp_port: 465
 
 sources:
