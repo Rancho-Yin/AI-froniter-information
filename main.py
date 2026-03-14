@@ -124,6 +124,8 @@ def run_digest(cfg: dict) -> bool:
     success = send_digest(
         subject=subject,
         html_body=html,
+        smtp_server=email_cfg["smtp_server"],
+        smtp_port=email_cfg["smtp_port"],
     )
 
     if success:
