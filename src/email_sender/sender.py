@@ -24,16 +24,16 @@ logger = logging.getLogger(__name__)
 def send_digest(
     subject: str,
     html_body: str,
-    smtp_server: str = "smtpdm.volcengine.com",
+    smtp_server: str = "smtp.163.com",
     smtp_port: int = 465,
     sender_email: str | None = None,
     recipient_email: str | None = None,
 ) -> bool:
     """
-    Send the HTML digest email via 火山引擎邮件推送 SMTP.
+    Send the HTML digest email via 163邮箱 SMTP.
 
     Credentials are read from environment variables:
-      VOLCENGINE_SMTP_USER, VOLCENGINE_SMTP_PASSWORD, EMAIL_SENDER, EMAIL_RECIPIENT
+      SMTP_USER, SMTP_PASSWORD, EMAIL_SENDER, EMAIL_RECIPIENT
 
     Returns True on success, False on failure.
     """
