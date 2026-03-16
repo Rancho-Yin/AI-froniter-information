@@ -1,15 +1,14 @@
 """
-Email sender – uses 163邮箱 SMTP to send the HTML digest.
+Email sender – uses Gmail SMTP to send the HTML digest.
 
-163邮箱 SMTP setup:
-  1. 登录 mail.163.com → 设置 → POP3/SMTP/IMAP
-  2. 开启 SMTP 服务
-  3. 在「授权密码管理」中生成授权码（非登录密码）
-  4. 将以下环境变量设置为 GitHub Secrets:
-       SMTP_USER        – 163邮箱地址，如 yourname@163.com
-       SMTP_PASSWORD    – 163邮箱授权码（16位）
-       EMAIL_SENDER     – 同 SMTP_USER
-       EMAIL_RECIPIENT  – 收件人，多个用逗号分隔，如 a@x.com,b@y.com
+Gmail SMTP setup:
+  1. Go to your Google Account → Security → 2-Step Verification (must be ON)
+  2. Search "App passwords" → create one for "Mail" → copy the 16-char password
+  3. Set the following GitHub Secrets:
+       SMTP_USER        – your Gmail address, e.g. yourname@gmail.com
+       SMTP_PASSWORD    – the 16-char App Password (NOT your Gmail login password)
+       EMAIL_SENDER     – same as SMTP_USER
+       EMAIL_RECIPIENT  – comma-separated recipients, e.g. a@gmail.com,b@qq.com
 """
 
 import logging
@@ -24,13 +23,13 @@ logger = logging.getLogger(__name__)
 def send_digest(
     subject: str,
     html_body: str,
-    smtp_server: str = "smtp.163.com",
-    smtp_port: int = 465,
+    smtp_server: str = "smtp.gmail.com",
+    smtp_port: int = 587,
     sender_email: str | None = None,
     recipient_email: str | None = None,
 ) -> bool:
     """
-    Send the HTML digest email via 163邮箱 SMTP.
+    Send the HTML digest email via Gmail SMTP (STARTTLS).
 
     Credentials are read from environment variables:
       SMTP_USER, SMTP_PASSWORD, EMAIL_SENDER, EMAIL_RECIPIENT
@@ -56,10 +55,12 @@ def send_digest(
         "This email requires an HTML-capable mail client."
     )
 
-    # 163邮箱 SMTP 对多收件人有反垃圾限制，逐一发送确保每位都能收到
     failed = []
     try:
-        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
             server.login(smtp_user, smtp_password)
             for recipient in recipients:
                 msg = MIMEMultipart("alternative")
@@ -76,7 +77,9 @@ def send_digest(
                     failed.append(recipient)
     except smtplib.SMTPAuthenticationError:
         logger.error(
-            "SMTP authentication failed. Check SMTP_USER and SMTP_PASSWORD."
+            "SMTP authentication failed. "
+            "Make sure SMTP_PASSWORD is a Gmail App Password, not your login password. "
+            "Generate one at: Google Account → Security → 2-Step Verification → App passwords"
         )
         return False
     except Exception as exc:
