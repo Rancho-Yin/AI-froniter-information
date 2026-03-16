@@ -4,7 +4,7 @@ schedule:
 
 email:
   subject_prefix: "🤖 AI 前沿日报"
-  smtp_server: "smtp.gmail.com"
+  smtp_server: "smtp.sendgrid.net"
   smtp_port: 587
 
 sources:
